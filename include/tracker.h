@@ -54,6 +54,7 @@ private:
     string package_path;
     double scale;
     PointCloud<PointXYZRGB> final;
+    PointCloud<PointXYZRGB> transformed_head;
     IterativeClosestPoint<PointXYZRGB, PointXYZRGB> icp;
     vector<int> indices;
 

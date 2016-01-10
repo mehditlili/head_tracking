@@ -40,7 +40,7 @@ void Tracker::run(CloudPtr inputCloud, Mat inputImage)
     {
         //ICP tracking here
         //removeNaNFromPointCloud(*inputCloud, *inputCloud, indices);
-        icp.setInputCloud(m_headModel);
+        icp.setInputSource(m_headModel);
         icp.setInputTarget(inputCloud);
         icp.align(final);
         std::cout << "has converged:" << icp.hasConverged() << " score: " <<
@@ -67,10 +67,9 @@ void Tracker::extractHeadModel(Mat &image, CloudPtr inputCloud, int &m_cnt)
     {
         drawFace(image);
         cout << "Face detected at "<<faces[0].x<<"/"<<faces[0].y<<endl;
-        cout << m_cnt<<endl;
         if (m_cnt == 0)
         {
-            m_headModel.reset(new PointCloud<PointXYZRGB>(inputCloud->width, inputCloud->height));
+            m_headModel.reset(new PointCloud<PointXYZRGB>(faces[0].width, faces[0].height));
             double x_val,y_val, z_val;
             for(int y=0;y<faces[0].height;y++)
             {
@@ -83,7 +82,7 @@ void Tracker::extractHeadModel(Mat &image, CloudPtr inputCloud, int &m_cnt)
                     {
                      m_headModel->at(x, y) = inputCloud->at(x+faces[0].x, y+faces[0].y);
                     }
-                     else
+                    else
                     {
                      m_headModel->at(x, y).x = 0;
                      m_headModel->at(x, y).y = 0;
@@ -91,14 +90,12 @@ void Tracker::extractHeadModel(Mat &image, CloudPtr inputCloud, int &m_cnt)
                     }
                 }
             }
-
             //Get centroid of face and set it as pose
             int centroid_x = faces[0].width/2;
             int centroid_y = faces[0].height/2;
             m_headPose = Translation3f(m_headModel->at(centroid_x, centroid_y).x,
                                        m_headModel->at(centroid_x, centroid_y).y,
                                        m_headModel->at(centroid_x, centroid_y).z);
-
             //removeNaNFromPointCloud(*m_headModel, *m_headModel, indices);
             for(int y=0;y<m_headModel->height;y++)
             {
@@ -135,9 +132,10 @@ void Tracker::drawFace(Mat &image)
 
 CloudPtr Tracker::getTransformedHeadModel()
 {
-    CloudPtr temp;
-    temp.reset(new Cloud);
-    transformPointCloud(*m_headModel, *temp, m_headPose);
+    CloudPtr temp(&final);
+
+    //temp.reset(new Cloud);
+    //transformPointCloud(*m_headModel, *temp, m_headPose);
     return temp;
 }
 
