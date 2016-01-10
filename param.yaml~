@@ -1,0 +1,6 @@
+/sub/topic: '/dhri/points'
+/sub/rgb/topic:  '/camera/rgb/image_color'
+/sub/depth/topic: '/camera/depth/image'
+/pub/points/mtrack: '/dhri/points/trackID'
+
+/buffernumber: 1000
